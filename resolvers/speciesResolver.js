@@ -5,7 +5,11 @@ export default {
     species: (parent) => Species.findById(parent.species)
   },
   Mutation: {
-    addSpecies: (_, args) => {
+    addSpecies: (_, args, context) => {
+      const { user } = context;
+
+      if (!user) throw new AuthenticationError('Not authenticated!');
+      
       const newSpecies = new Species(args);
       return newSpecies.save();
     }

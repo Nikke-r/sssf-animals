@@ -4,6 +4,7 @@ import schemas from './schemas/index.js';
 import resolvers from './resolvers/index.js';
 import express from 'express';
 import connectMongo from './db.js';
+import { checkAuth } from './passport/authenticate.js';
 
 (async () => {
    try {
@@ -12,6 +13,21 @@ import connectMongo from './db.js';
     const server = new ApolloServer({
         typeDefs: schemas,
         resolvers,
+        context: async ({req, res}) => {
+            try {
+                if (req) {
+                    const user = await checkAuth(req, res);
+
+                    return {
+                        req,
+                        res,
+                        user
+                    }
+                }
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
     });
   
     const app = express();
